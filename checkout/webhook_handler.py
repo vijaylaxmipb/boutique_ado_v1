@@ -19,6 +19,20 @@ class StripeWH_Handler:
         """
         Handle the payment_intent.succeeded webhook from Stripe
         """
+        intent = event.data.object
+        pid = intent.id
+        bag = intent.metadata.bag
+        save_info = intent.metadata.save_info
+
+        # Retrieve the Charge object to access billing_details and grand_total
+        stripe_charge = stripe.Charge.retrieve(intent.latest_charge)
+
+        billing_details = stripe_charge.billing_details  # Updated to use stripe_charge
+        shipping_details = intent.shipping
+        grand_total = round(stripe_charge.amount / 100, 2)  # Updated to use stripe_charge amount
+
+        # Include any processing logic or database updates here
+
         return HttpResponse(
             content=f'Webhook received: {event["type"]}',
             status=200)
